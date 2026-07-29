@@ -64,54 +64,6 @@ This project automates the complete outbound sales workflow:
 
 ![AI SDR system architecture](AI_SDR_System_Architecture.png)
 
-```text
-Google Maps
-        │
-        ▼
-   Apify Scraper
-        │
-        ▼
-Make.com
-        │
-        ▼
-Google Sheets
-        │
-        ▼
-Search Existing Contact
-        │
- ┌──────┴──────┐
- │             │
- ▼             ▼
-Update      Create
-Contact     Contact
-        │
-        ▼
-GoHighLevel CRM
-        │
-        ▼
-Create Opportunity
-        │
-        ▼
-Vapi AI Voice Agent
-        │
- ┌──────┴─────────────┐
- │                    │
- ▼                    ▼
-Qualify Lead      Check Calendar
- │                    │
- └─────────┬──────────┘
-           ▼
-Book Appointment
-           │
-           ▼
-Webhook
-           │
-           ▼
-Make.com
-           │
-           ▼
-Update CRM
-```
 
 ---
 
