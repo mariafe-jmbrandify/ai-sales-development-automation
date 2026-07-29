@@ -62,6 +62,8 @@ This project automates the complete outbound sales workflow:
 
 # System Architecture
 
+![AI SDR system architecture](AI_SDR_System_Architecture.png)
+
 ```text
 Google Maps
         │
