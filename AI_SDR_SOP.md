@@ -10,7 +10,7 @@
 
 This SOP covers day-to-day operation, monitoring, and change management for the AI SDR pipeline — from Google Maps lead scraping through AI voice qualification to appointment booking in GoHighLevel. It does not cover initial platform setup (assumed already provisioned) or client-specific onboarding contracts.
 
-**Current production status:** Phases 1–5 (Lead Acquisition → Call Outcome Processing) are live. Phase 6 (SMS Follow-Up) is a **planned enhancement, not yet live** — do not assume SMS follow-ups are running for leads who don't answer until this is explicitly built and confirmed.
+**Current status:** all phases are built: lead acquisition, CRM intake, AI calling, booking, outcome processing, and SMS follow-up. SMS runs from GoHighLevel workflows through the client's Twilio number, which is also connected to Vapi for calls.
 
 ---
 
@@ -23,7 +23,7 @@ This SOP covers day-to-day operation, monitoring, and change management for the 
 | Google Sheets | Temporary lead staging before CRM entry | Make.com service account |
 | GoHighLevel (GHL) | CRM — contacts, opportunities, pipeline, calendar | Sales team + automation |
 | Vapi AI | AI voice agent that calls and qualifies leads | Whoever maintains the voice agent config/prompts |
-| Twilio | Phone numbers + SMS | Vapi (calling) + Make.com (SMS phase, once live) |
+| Twilio | Phone number for calls and SMS | Vapi (calling) + GoHighLevel (SMS workflows) |
 | OpenAI | Conversation logic behind the Vapi agent | Whoever maintains prompts |
 
 Keep API keys/credentials for all seven platforms in a shared secrets manager, not hardcoded into Make.com scenarios — a leaked or expired key in any one of these breaks the whole chain, since each phase depends on the previous one's output.
@@ -85,7 +85,8 @@ Keep API keys/credentials for all seven platforms in a shared secrets manager, n
 | Opportunities created but AI never calls | Trigger between "Watch Contact Updated" and the HTTP request to Vapi isn't firing | Check the Make.com webhook/watch trigger status — it may be paused or hit a rate limit |
 | AI calls happen but outcomes don't update GHL | Webhook from Vapi to Make.com is failing, or the payload shape changed | Check Make.com's incoming webhook log; compare payload structure against Section 4.3 |
 | Appointment booked in Vapi but no calendar event in GHL | Vapi's calendar-check/booking tool call to GHL failed silently | Check Vapi's tool-call logs for the booking step specifically, not just the overall call outcome |
-| Leads stuck in "Not Interested" with no nurture activity | Lead nurture workflow in GHL isn't enrolling contacts, or Phase 6 (SMS) is assumed live but isn't built yet | Confirm nurture workflow trigger; confirm Phase 6 status before troubleshooting SMS as if it exists |
+| Interested leads not receiving SMS | Lead Scheduling Nurture trigger didn't fire, or the Twilio number isn't connected in GHL | Check the workflow's enrollment history and execution logs; confirm the Twilio number and SMS sending in GHL |
+| Leads still texted after booking | Appointment check or workflow goal not matching | Check the "Check for Appointment" branch conditions and the workflow goal in execution logs |
 
 ---
 
