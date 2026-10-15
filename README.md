@@ -1,6 +1,8 @@
 # AI SDR Automation System
 
-> End-to-End AI Sales Development Representative (SDR) Automation built with Make.com, GoHighLevel, Vapi AI, OpenAI, APIs, and workflow automation.
+> End-to-end AI Sales Development Representative (SDR) automation built with Apify, Make.com, GoHighLevel, Vapi AI, Twilio, APIs, and webhooks.
+>
+> **Client project.** Designed, built, and documented by Maria Fe Blanca. Client names, contact data, and credentials have been removed.
 
 ---
 
@@ -40,7 +42,7 @@ This project automates the complete outbound sales workflow:
 * Qualifies prospects using an AI voice assistant
 * Books appointments automatically
 * Updates CRM records in real time
-* Supports future SMS follow-up automation
+* Runs SMS follow-up sequences through GoHighLevel until the lead books, replies, or changes status
 
 ---
 
@@ -48,13 +50,13 @@ This project automates the complete outbound sales workflow:
 
 | Technology    | Purpose                                 |
 | ------------- | --------------------------------------- |
-| Apify         | Google Maps Lead Scraping               |
+| Apify         | Google Maps lead collection             |
 | Make.com      | Workflow Orchestration                  |
 | Google Sheets | Lead Staging                            |
 | GoHighLevel   | CRM & Pipeline                          |
-| Vapi AI       | AI Voice Agent                          |
-| OpenAI        | Prompt Engineering & Conversation Logic |
-| Twilio        | Phone Numbers & SMS                     |
+| Vapi AI       | AI voice agent (system instructions and knowledge base engineered for this client) |
+| OpenAI        | Language model behind the Vapi assistant |
+| Twilio        | Phone number connected to GoHighLevel and Vapi for AI calls and SMS |
 | HTTP APIs     | Platform Integrations                   |
 | Webhooks      | Event Processing                        |
 
@@ -71,7 +73,7 @@ This project automates the complete outbound sales workflow:
 
 ## Phase 1 — Lead Generation
 
-Business leads are collected from Google Maps using Apify.
+Business leads are collected from Google Maps using an Apify actor, started from Make.com ("Run an Actor").
 
 Extracted data includes:
 
@@ -80,7 +82,7 @@ Extracted data includes:
 * Website
 * City
 
-The workflow automatically pushes the data into Google Sheets before synchronising it with GoHighLevel.
+Make.com iterates over the results, checks Google Sheets for rows that already exist, adds new rows, then searches GoHighLevel and routes each lead to **Create Contact** or **Update Contact**.
 
 ---
 
@@ -99,7 +101,9 @@ The automation:
 
 ## Phase 3 — AI Qualification
 
-Once a lead is created, Vapi automatically places an outbound AI call.
+Once a lead is created and enters the Sales Prospect pipeline, a GoHighLevel workflow sends the contact data to Make.com, which calls the Vapi API (`POST /call`) to place an outbound AI call from the client's Twilio number.
+
+I wrote the Vapi assistant's **system instructions and knowledge base**: the business context, qualification questions, objection handling, and the structured outcome the assistant returns at the end of each call.
 
 The AI agent:
 
@@ -136,17 +140,48 @@ Each outcome automatically updates the CRM and triggers the appropriate workflow
 
 ---
 
+## Phase 6 — SMS Follow-Up (GoHighLevel + Twilio)
+
+The **Lead Scheduling Nurture** workflow in GoHighLevel sends SMS through the Twilio number to interested leads who have not booked yet.
+
+**Triggers:** lead status changed to qualified, AI call outcome set to "Interested", or a positive customer reply.
+
+**Sequence:** SMS #1 → wait 1 day → SMS #2 → wait 2 days → SMS #3 → wait 4 days → final nurture SMS → wait 3 days → lead status set to Nurture and tagged `Interested - Long Term Nurture`.
+
+---
+
+## How Follow-Up Stops
+
+* **Booked appointment:** the nurture workflow checks for an appointment before every SMS and ends as soon as one exists.
+* **Workflow goal:** the AI Lead Qualification workflow exits when an appointment is scheduled, the lead status changes, or the contact replies.
+* **Replies and status changes:** a positive reply or a lead-status change ends the nurture sequence and notifies the sales team.
+* **Duplicates:** Make.com checks Google Sheets and searches GoHighLevel before creating a contact, so a lead already in the system is updated instead of duplicated.
+
+---
+
 ## Planned Enhancements
 
 Future improvements include:
 
-* SMS follow-up automation
 * Email nurturing campaigns
 * Lead scoring
 * Multi-language AI voice support
 * Reporting dashboard
 * Analytics
 * Conversation summarisation
+
+---
+
+# Screenshots
+
+| Screenshot | What it shows |
+| --- | --- |
+| [Apify lead intake (GHL)](Apify_Lead_Intake_Automation.png) | New-lead workflow: opportunity, owner, tags, phone check |
+| [Leads scraped (Make.com)](Make_Automation_Scenario_2.png) | Apify → Sheets → iterator → GHL search → create or update |
+| [AI call trigger (Make.com)](Make_Automation_Scenario_1.png) | GHL contact update → HTTP `POST /call` → Vapi |
+| [Post-qualification (Make.com)](Make_Automation_Scenario_3.png) | Vapi webhook → GHL contact update |
+| [AI lead qualification flow (GHL)](AI_Lead_Qualification_Flow.png) | Send to Make, call status, workflow goal exits |
+| [SMS nurture workflow (GHL)](GHL_Workflow_Overview_1.png) | SMS sequence with appointment checks ([part 2](GHL_Workflow_Overview_2.png)) |
 
 ---
 
@@ -159,7 +194,9 @@ Future improvements include:
 * Webhooks
 * GoHighLevel CRM Architecture
 * AI Voice Agents (Vapi)
-* Prompt Engineering
+* Prompt Engineering (system instructions and knowledge base)
+* Twilio Integration (calls and SMS)
+* SMS Follow-Up Sequences
 * Calendar Automation
 * Lead Qualification
 * Sales Automation

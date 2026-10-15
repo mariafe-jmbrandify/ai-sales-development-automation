@@ -29,10 +29,11 @@ flowchart TD
     N -->|Interested| O1[Sales Queue]
     N -->|Appointment Booked| O2[Calendar Event]
     N -->|Not Interested| O3[Lead Nurture Workflow]
-    O3 -.planned.-> P[SMS Follow-Up Sequence]
+    O1 --> P[GHL SMS Follow-Up via Twilio]
+    P -->|Booked, replied, or status changed| Q[Exit sequence + notify sales]
 ```
 
-**Status legend:** solid path = live in production. The SMS Follow-Up branch (Phase 6) is planned but not yet built — see Section 6.
+**Status:** all phases shown are built. SMS follow-up runs in GoHighLevel through the client's Twilio number (Phase 7).
 
 ---
 
@@ -73,6 +74,7 @@ flowchart TD
 |---|---|
 | **Trigger** | Watch Contact Updated → HTTP Request from Make.com to Vapi |
 | **Platform(s)** | Make.com → Vapi AI → Twilio (call delivery) → OpenAI (conversation logic) |
+| **Prompting** | Vapi system instructions and knowledge base written for this client: business context, qualification questions, objection handling, structured end-of-call outcome |
 | **Vapi responsibilities** | Introduce business, ask qualification questions, understand needs, handle basic objections, determine interest level, offer appointment times |
 | **Data needed inbound** | Contact name, phone, business context/vertical (for the prompt) |
 | **Output** | Call outcome + qualification data, held by Vapi until call ends |
@@ -97,13 +99,14 @@ flowchart TD
 | **Branch: Not Interested** | Update lead status, enroll contact in long-term lead nurture workflow |
 | **Critical dependency** | This entire phase depends on the Vapi webhook payload shape staying consistent — any prompt change that adds/renames/removes an extracted field must be checked against this Make.com module (see SOP Section 4.3) |
 
-### Phase 7 — SMS Follow-Up *(Planned Enhancement — not yet live)*
+### Phase 7 — SMS Follow-Up (GoHighLevel + Twilio)
 | | |
 |---|---|
-| **Trigger** | No-answer outcome on the AI call |
-| **Planned platform(s)** | Make.com → Twilio |
-| **Planned sequence** | SMS 1 immediately after no-answer → SMS 2 reminder at 24/48/72h → SMS 3 final follow-up |
-| **Status** | Documented as a design intent in the original project spec; not implemented. Do not report this as active in any client-facing status update until built and tested. |
+| **Workflow** | Lead Scheduling Nurture (GoHighLevel) |
+| **Triggers** | Lead status changed to qualified · AI call outcome set to "Interested" · positive customer reply |
+| **Platform(s)** | GoHighLevel workflow → Twilio number (connected to GHL) |
+| **Sequence** | SMS #1 → wait 1 day → SMS #2 → wait 2 days → SMS #3 → wait 4 days → final nurture SMS → wait 3 days → lead status set to Nurture, tag `Interested - Long Term Nurture`, remove from workflow |
+| **Stop conditions** | Appointment check before each SMS (ends if a start date exists) · ends on lead-status change or positive reply, with a sales notification |
 
 ---
 
