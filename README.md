@@ -4,6 +4,8 @@
 >
 > **Client project.** Designed, built, and documented by Maria Fe Blanca. Client names, contact data, and credentials have been removed.
 
+▶️ **[Watch the animated explainer film](https://mariafe-jmbrandify.github.io/ai-sales-development-automation/AI_SDR_Explainer_Film.html)**
+
 ---
 
 ## Overview
@@ -73,7 +75,9 @@ This project automates the complete outbound sales workflow:
 
 [**AI_SDR_Explainer_Film.html**](AI_SDR_Explainer_Film.html) is a short, hand-drawn animated explainer for non-technical business owners. It follows one lead through the six stages, from lead generation to a booked appointment and the CRM update, with voiced characters and a recap at the end.
 
-Download the file and open it in any browser; everything, including the voice audio, is built into the one file. Click the film to start the sound.
+**[▶️ Watch it in your browser](https://mariafe-jmbrandify.github.io/ai-sales-development-automation/AI_SDR_Explainer_Film.html)** (hosted with GitHub Pages). Click the film to start the sound, and click again to move through it, or switch to Autoplay.
+
+You can also download the file and open it offline; everything, including the voice audio, is built into the one file.
 
 ---
 
